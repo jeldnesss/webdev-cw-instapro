@@ -50,7 +50,6 @@ export function renderPostsPageComponent({ appEl }) {
     element: appEl.querySelector(".header-container"),
   });
 
-  // переход на страницу пользователя по клику на header
   for (let userEl of document.querySelectorAll(".post-header")) {
     userEl.addEventListener("click", () => {
       goToPage(USER_POSTS_PAGE, { userId: userEl.dataset.userId });
@@ -91,7 +90,6 @@ export function renderPostsPageComponent({ appEl }) {
             allPosts[allPostIndex] = updatedPost;
           }
 
-          // обновляем DOM без перерисовки всей страницы
           updatePostLikeInDom(updatedPost);
         })
         .catch((error) => {
