@@ -3,39 +3,77 @@ import { renderHeaderComponent } from "./header-component.js";
 import { posts, allPosts, goToPage, user, getToken } from "../index.js";
 import { likePost, dislikePost } from "../api.js";
 
+const escapeHtml = (text) => {
+  if (!text) return "";
+
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+};
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export function renderPostsPageComponent({ appEl }) {
   const postsHtml = posts
     .map(
       (post) => `
-      <li class="post" data-post-id="${post.id}">
-        <div class="post-header" data-user-id="${post.user.id}">
-          <img src="${post.user.imageUrl}" class="post-header__user-image">
-          <p class="post-header__user-name">${post.user.name}</p>
-        </div>
+        <li class="post" data-post-id="${post.id}">
+          <div class="post-header" data-user-id="${post.user.id}">
+            <img
+              src="${post.user.imageUrl}"
+              class="post-header__user-image"
+              alt="Аватар пользователя"
+            >
+            <p class="post-header__user-name">
+              ${escapeHtml(post.user.name)}
+            </p>
+          </div>
 
-        <div class="post-image-container">
-          <img class="post-image" src="${post.imageUrl}">
-        </div>
+          <div class="post-image-container">
+            <img
+              class="post-image"
+              src="${post.imageUrl}"
+              alt="Изображение поста"
+            >
+          </div>
 
-        <div class="post-likes">
-          <button data-post-id="${post.id}" class="like-button">
-            <img src="./assets/images/${
-              post.isLiked ? "like-active" : "like-not-active"
-            }.svg">
-          </button>
-          <p class="post-likes-text">
-            Нравится: <strong>${post.likes.length}</strong>
+          <div class="post-likes">
+            <button data-post-id="${post.id}" class="like-button">
+              <img
+                src="./assets/images/${
+                  post.isLiked ? "like-active" : "like-not-active"
+                }.svg"
+                alt="Лайк"
+              >
+            </button>
+            <p class="post-likes-text">
+              Нравится: <strong>${post.likes.length}</strong>
+            </p>
+          </div>
+
+          <p class="post-text">
+            <span class="user-name">
+              ${escapeHtml(post.user.name)}
+            </span>
+            ${escapeHtml(post.description)}
           </p>
-        </div>
 
-        <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
-        </p>
-
-        <p class="post-date">${post.createdAt}</p>
-      </li>
-    `
+          <p class="post-date">
+            ${formatDate(post.createdAt)}
+          </p>
+        </li>
+      `
     )
     .join("");
 
@@ -56,7 +94,6 @@ export function renderPostsPageComponent({ appEl }) {
     });
   }
 
-  // обработка лайков
   for (let likeButton of document.querySelectorAll(".like-button")) {
     likeButton.addEventListener("click", (event) => {
       event.stopPropagation();
